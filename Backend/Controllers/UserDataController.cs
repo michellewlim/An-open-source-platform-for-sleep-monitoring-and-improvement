@@ -19,14 +19,14 @@ public class UserDataController : ControllerBase{
     [Route("SubmitData")]
     public async Task<IActionResult> SubmitData([FromBody] UserDataPacket packet){
 
-        await _databaseController.addData(packet);
+        await _databaseController.addUser(packet);
 
         return CreatedAtAction(nameof(SubmitData), packet);
     }
 
-    [HttpGet]
-    public IActionResult Test(){
-        return Ok();
+    [HttpGet()]
+    [Route("GetUserIds")]
+    public async Task<List<User>> getUserIds(){
+        return await _databaseController.getUsers();
     }
-
 }
