@@ -1,3 +1,5 @@
+using System.Data;
+using Backend.Helpers;
 using Backend.Models;
 using MySql.Data.MySqlClient;
 namespace Backend.Controllers;
@@ -12,57 +14,39 @@ public class DatabaseController : IDatabaseController{
         conn = new MySqlConnection(_config["Databases:SeniorDesignConnectionString"]); 
     }
 
-    //Submit data to the database
+    //Submit user data to the database
     public async Task<int> addUser(UserDataPacket packet){
-        this.checkConnection();
-
-        MySqlCommand myCommand = conn.CreateCommand();
-        MySqlTransaction myTrans;
-        myTrans = conn.BeginTransaction();
-        myCommand.Connection = conn;
-        myCommand.Transaction = myTrans;
-
-        try
-        {
-            myCommand.CommandText = $"insert into users (Id) VALUES ({packet.userID});";
-            myCommand.ExecuteNonQuery();
-            myTrans.Commit();
-        }
-        catch(Exception e)
-        {
-            myTrans.Rollback();
-            throw(e);
-        }
+        DatabaseReader<User> dbReader = new DatabaseReader<User>(conn);
+        await dbReader.databaseWrite(generateInsertUserSql(packet));
         return 0;
     }
 
     //Get a list of all users from the database
     public async Task<List<User>> getUsers(){
-        
-        this.checkConnection();
+        string CommandText = $"select Id from users";
+        DatabaseReader<User> dbReader = new DatabaseReader<User>(conn);
+        return await dbReader.databaseRead(CommandText, createUserObjects);
+    }
 
-        MySqlCommand myCommand = conn.CreateCommand();
+    public async Task<int> submitHeartPacket(HeartDataPacket packet){
+        DatabaseReader<User> dbReader = new DatabaseReader<User>(conn);
+        await dbReader.databaseWrite(generateInsertHeartDataSql(packet));
+        return 0;
+    }
 
-        List<User> users = new List<User>();
+    private string generateInsertUserSql(UserDataPacket packet){
+        return $"INSERT into users (Id) VALUES ({packet.userID});";
+    }
 
-        MySqlTransaction myTrans;
-        myTrans = conn.BeginTransaction();
-        myCommand.Connection = conn;
-        myCommand.Transaction = myTrans;
+    private string generateInsertHeartDataSql(HeartDataPacket packet){
+        return $"INSERT into heartdata (Id, FitbitId) VALUES ({packet.userID}, {packet.fitbitID})";
+    }
 
-        myCommand.CommandText = $"select Id from users";
-        using(var response = myCommand.ExecuteReader()){
-            while (response.Read())
-            {
-                var Id = response.GetInt32(0);
-                users.Add(new User{
-                    id=Id
-                });
-            }
-        response.Close();
-        };
-        myTrans.Commit();
-        return users;
+    private List<User> createUserObjects(DataTable dataTable){
+        return (from DataRow row in dataTable.Rows
+                    select new User{
+                        userID = (int)row["id"]
+                    }).ToList();
     }
 
     private void checkConnection(){

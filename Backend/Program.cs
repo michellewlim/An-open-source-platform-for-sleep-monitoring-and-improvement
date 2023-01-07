@@ -4,12 +4,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Configuration.AddJsonFile("appsettings.Production.json");
+//builder.Configuration.AddJsonFile("appsettings.Production.json");
 builder.Configuration.AddEnvironmentVariables();
 //builder.Configuration.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 builder.Configuration.AddUserSecrets<Program>();
@@ -22,7 +22,7 @@ builder.WebHost.ConfigureKestrel(serverOptions => {
     });
 });
 
-builder.WebHost.UseUrls("https://0.0.0.0");
+//builder.WebHost.UseUrls("https://0.0.0.0");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

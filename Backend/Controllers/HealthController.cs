@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("")]
+[Route("Health")]
 public class HealthController : ControllerBase{
 
     [HttpGet]
@@ -16,5 +16,4 @@ public class HealthController : ControllerBase{
     public IActionResult Sum(int value1, int value2){
         return Ok(value1 + value2);
     }
-
 }

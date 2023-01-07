@@ -2,12 +2,9 @@ using System.Text.Json;
 
 namespace Backend.Models;
 
-public class User{
+public class HeartDataPacket{
 
     public int userID {get; set;}
-
     public string fitbitID {get; set;}
-
-    public string nestID {get;set;}
 
 }

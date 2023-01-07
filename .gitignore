@@ -2,3 +2,4 @@ Backend/bin
 Backend/obj
 .vscode
 appsettings.Production.json
+Backend/obj/Debug
