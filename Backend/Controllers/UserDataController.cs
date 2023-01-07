@@ -16,17 +16,26 @@ public class UserDataController : ControllerBase{
     }
 
     [HttpPost()]
-    [Route("SubmitData")]
-    public async Task<IActionResult> SubmitData([FromBody] UserDataPacket packet){
+    [Route("AddUser")]
+    public async Task<IActionResult> addUser([FromBody] UserDataPacket packet){
 
         await _databaseController.addUser(packet);
 
-        return CreatedAtAction(nameof(SubmitData), packet);
+        return CreatedAtAction(nameof(addUser), packet);
     }
 
     [HttpGet()]
     [Route("GetUserIds")]
     public async Task<List<User>> getUserIds(){
         return await _databaseController.getUsers();
+    }
+
+    [HttpPost()]
+    [Route("SubmitSurvey")]
+    public async Task<IActionResult> submitSurvey([FromBody] UserDailyQuizPacket packet){
+        
+        await _databaseController.addSurvey(packet);
+
+        return CreatedAtAction(nameof(submitSurvey), packet);
     }
 }

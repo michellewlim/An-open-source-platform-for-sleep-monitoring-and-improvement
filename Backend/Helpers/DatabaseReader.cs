@@ -40,7 +40,7 @@ public class DatabaseReader<T> : IDatabaseReader<T>
         return results;
     }
 
-    public async Task databaseWrite(string sqlCommand)
+    public async Task databaseWrite(Func<MySqlCommand, T, int> createSqlCommand, T packet)
     {
         this.checkConnection();
 
@@ -52,7 +52,8 @@ public class DatabaseReader<T> : IDatabaseReader<T>
 
         try
         {
-            myCommand.CommandText = sqlCommand;
+            createSqlCommand(myCommand, packet);
+            //myCommand.CommandText = sqlCommand;
             await myCommand.ExecuteNonQueryAsync();
             myTrans.Commit();
         }

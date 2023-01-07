@@ -10,5 +10,7 @@ public class UserDataPacket{
 
     public string sex {get; set;}
 
+    public string fitbitID {get; set;}
 
+    public string nestID {get;set;}
 }
