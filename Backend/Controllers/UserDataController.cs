@@ -24,6 +24,13 @@ public class UserDataController : ControllerBase{
         return CreatedAtAction(nameof(addUser), packet);
     }
 
+    [HttpPut()]
+    [Route("LinkFitbit")]
+    public async Task<IActionResult> linkFitbit([FromBody] FitbitOnboardPacket packet){
+        await _databaseController.linkFitbitToUser(packet);
+        return Ok();    
+    }
+
     [HttpGet()]
     [Route("GetUserIds")]
     public async Task<List<User>> getUserIds(){
