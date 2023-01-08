@@ -8,10 +8,10 @@ public class DatabaseController : IDatabaseController{
 
     private readonly IConfiguration _config;
     private MySqlConnection conn; 
-
+    
     public DatabaseController(IConfiguration config){
         _config = config;
-        conn = new MySqlConnection(_config["Databases:SeniorDesignConnectionString"]); 
+        conn = new MySqlConnection(_config["Databases:SeniorDesignConnectionString"]);
     }
 
     //Submit user data to the database
