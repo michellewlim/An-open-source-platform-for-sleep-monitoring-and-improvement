@@ -1,4 +1,5 @@
 using Backend.Controllers;
+using Backend.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Configuration.AddEnvironmentVariables();
 //builder.Configuration.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddSingleton<IDatabaseController, DatabaseController>();
+builder.Services.AddSingleton<IOptimizationScheduler, OptimizationScheduler>();
+builder.Services.AddScoped<IFitbitController, FitbitController>();
 builder.WebHost.ConfigureKestrel(serverOptions => {
     serverOptions.ConfigureEndpointDefaults(listenOptions =>{
         listenOptions.UseHttps();

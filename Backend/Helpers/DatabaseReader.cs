@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Backend.Helpers;
 
-public class DatabaseReader<T> : IDatabaseReader<T>
+public class DatabaseReader<T>
 {
     private MySqlConnection conn;
 

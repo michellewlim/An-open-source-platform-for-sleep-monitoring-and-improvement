@@ -1,16 +1,9 @@
 CREATE TABLE users(
-    userID int,
+    userID int primary key,
     age int,
     sex varchar(1),
-    nestID varchar(255),
-    fitbitID varchar(255)
-);
-INSERT into users values(
-    100,
-    19,
-    'm',
-    "nestId",
-    "fitbitID"
+    nestID varchar(255) unique,
+    fitbitID varchar(255) unique
 );
 
 CREATE TABLE dailyQuizes(
@@ -22,4 +15,8 @@ CREATE TABLE dailyQuizes(
     wakeTime datetime
 );
 
-
+CREATE TABLE fitbitUsers(
+    userID varchar(255),
+    accessToken varchar(255),
+    refreshToken varchar(255)
+);
