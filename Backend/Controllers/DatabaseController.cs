@@ -49,10 +49,9 @@ public class DatabaseController : IDatabaseController{
     }
 
     public async Task<User> getUser(int userID){
-        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID where userID = {userID};";
+        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID where users.userID = {userID};";
         DatabaseReader<User> dbUserReader = new DatabaseReader<User>(conn);
         List<User> user = await dbUserReader.databaseRead(CommandText, createUserObjects);
-
 
         if(user.Count() == 0){
             throw new RowNotInTableException("User Not Found");

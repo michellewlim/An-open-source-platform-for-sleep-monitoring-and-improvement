@@ -16,7 +16,7 @@ CREATE TABLE dailyQuizes(
 );
 
 CREATE TABLE fitbitUsers(
-    userID varchar(255),
+    userID varchar(255) primary key,
     accessToken varchar(255),
     refreshToken varchar(255)
 );
