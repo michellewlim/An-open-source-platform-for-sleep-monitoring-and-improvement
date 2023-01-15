@@ -51,8 +51,9 @@ class SurveyPageState extends State<SurveyPage> {
       log("Please specify if you encountered any disturbances during your sleep");
     } else if (_disturbance == "yes" && _disturbanceDescription == "") {
       log("Please descripbe the disturbance encountered during your sleep");
+    } else {
+      log('$_sleepRating, $_disturbance, $_disturbanceDescription');
     }
-    log('$_sleepRating, $_disturbance, $_disturbanceDescription');
   }
 
   @override
