@@ -1,5 +1,4 @@
 namespace Backend.Models;
-
 public class FitbitOnboardPacket{
     
     public int userID {get; set;}
