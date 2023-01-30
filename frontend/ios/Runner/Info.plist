@@ -41,6 +41,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+  	<array>
+    	<dict>
+      	<key>CFBundleTypeRole</key>
+      	<string>Editor</string>
+      	<key>CFBundleURLName</key>
+      	<string>Dreamtem Deeplinks</string>
+      	<key>CFBundleURLSchemes</key>
+    	<array>
+    		<string>dreamtemp</string>
+      	</array>
+    	</dict>
+  	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

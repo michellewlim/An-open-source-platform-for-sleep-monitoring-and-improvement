@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/sleepButton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 
@@ -34,6 +35,7 @@ class SurveyPageState extends State<SurveyPage> {
   Future<void> _removeUsername() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('username');
+    await prefs.remove('credentials');
     setState(() {
       _username = "";
     });
@@ -44,7 +46,7 @@ class SurveyPageState extends State<SurveyPage> {
     prefs.setString('username', username.toString());
   }
 
-  void handleSubmit() {
+  void handleSubmit() async {
     if (_sleepRating == "") {
       log("Please rate your sleep");
     } else if (_disturbance == "") {
@@ -54,6 +56,12 @@ class SurveyPageState extends State<SurveyPage> {
     } else {
       log('$_sleepRating, $_disturbance, $_disturbanceDescription');
     }
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const SleepButtonPage();
+    }));
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('asleep', false);
   }
 
   @override

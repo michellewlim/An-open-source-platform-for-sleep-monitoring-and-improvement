@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:frontend/survey.dart';
+import 'package:frontend/sleepButton.dart';
+import 'package:frontend/loading.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pkce/pkce.dart';
 import 'package:fitbitter/fitbitter.dart';
+import 'package:app_links/app_links.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key, required this.title}) : super(key: key);
@@ -19,12 +22,43 @@ class SignInPageState extends State<SignInPage> {
   final usernameController = TextEditingController();
   final fitBitIdController = TextEditingController();
   final nestIdController = TextEditingController();
+  late AppLinks _appLinks;
   String _username = "";
+  String? initialLink = "";
+  StreamSubscription<Uri>? _linkSubscription;
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
+    initDeepLinks();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+
+    super.dispose();
+  }
+
+  Future<void> initDeepLinks() async {
+    _appLinks = AppLinks();
+    final appLink = await _appLinks.getInitialAppLink();
+
+    if (appLink != null) {
+      log('getInitialAppLink: $appLink');
+    }
+
+    // Handle link when app is in warm state (front or background)
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      log('onAppLink: $uri');
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    _navigatorKey.currentState?.pushNamed(uri.fragment);
   }
 
   Future<void> _loadUsername() async {
@@ -41,22 +75,26 @@ class SignInPageState extends State<SignInPage> {
 
   void handleSubmit(Text username, Text fitbitId, Text nestId) async {
     _setUsername(username);
-    log('fitbitId: $fitbitId');
-    log('nestId: $nestId');
 
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const SurveyPage(title: 'SurveyPage');
+      return const LoadingPage();
     }));
 
-    final pkcePair = PkcePair.generate();
-    String authUrl =
-        "https://www.fitbit.com/oauth2/authorize?client_id=2392N5&response_type=code&code_challenge=${pkcePair.codeChallenge}&code_challenge_method=S256&scope=activity%20heartrate%20location%20nutrition%20oxygen_saturation%20profile%20respiratory_rate%20settings%20sleep%20social%20temperature%20weight";
+    final prefs = await SharedPreferences.getInstance();
+
     FitbitCredentials? fitbitCredentials = await FitbitConnector.authorize(
         clientID: "2392DX",
         clientSecret: "5608120c565c67f8abd15a10d07e80b3",
-        redirectUri: "http://localhost:61405/#/",
-        callbackUrlScheme: "https");
+        redirectUri: "dreamtemp://auth",
+        callbackUrlScheme: "dreamtemp");
+
     log(fitbitCredentials.toString());
+
+    prefs.setString('credentials', fitbitCredentials.toString());
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const SleepButtonPage();
+    }));
   }
 
   @override
