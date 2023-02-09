@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Models;
-
+using Backend.Models.Fitbit;
 namespace Backend.Controllers;
 
 [ApiController]

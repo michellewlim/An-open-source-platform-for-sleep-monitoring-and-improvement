@@ -7,9 +7,9 @@ INSERT into users values(
 );
 
 INSERT INTO fitbitUsers values(
-    "fitbit1",
-    "access",
-    "refresh"
+    "userID",
+    "AccessToken",
+    "refreshToken"
 );
 
 UPDATE users 

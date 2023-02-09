@@ -16,7 +16,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddSingleton<IDatabaseController, DatabaseController>();
 builder.Services.AddSingleton<IOptimizationScheduler, OptimizationScheduler>();
-builder.Services.AddScoped<IFitbitController, FitbitController>();
+builder.Services.AddSingleton<IFitbitController, FitbitController>();
 builder.WebHost.ConfigureKestrel(serverOptions => {
     serverOptions.ConfigureEndpointDefaults(listenOptions =>{
         listenOptions.UseHttps();

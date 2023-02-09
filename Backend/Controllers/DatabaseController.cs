@@ -2,6 +2,7 @@ using System.Data;
 using Backend.Helpers;
 using Backend.Models;
 using MySql.Data.MySqlClient;
+using Backend.Models.Fitbit;
 namespace Backend.Controllers;
 
 public class DatabaseController : IDatabaseController{
@@ -80,7 +81,8 @@ public class DatabaseController : IDatabaseController{
     }
 
     private int generateInsertUserDailyQuizSql(MySqlCommand command, UserDailyQuizPacket packet){
-        command.CommandText = $"INSERT INTO dailyQuizes values ({packet.userID}, {packet.sleepQuality}, {packet.disturbance}, ?disturbanceDetails, ?sleepTime, ?wakeTime);";
+        command.CommandText = $"INSERT INTO dailyQuizes values ({packet.userID}, {packet.sleepQuality}, ?disturbance, ?disturbanceDetails, ?sleepTime, ?wakeTime);";
+        command.Parameters.AddWithValue("?disturbance", packet.disturbance);
         command.Parameters.AddWithValue("?disturbanceDetails", packet.disturbanceDetails);
         command.Parameters.AddWithValue("?sleepTime", packet.sleepTime);
         command.Parameters.AddWithValue("?wakeTime", packet.wakeTime);
@@ -138,7 +140,7 @@ public class DatabaseController : IDatabaseController{
         }
     }
 
-    public static T ConvertFromDBVal<T>(object obj)
+    public static T? ConvertFromDBVal<T>(object obj)
 {
     if (obj == null || obj == DBNull.Value)
     {

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using Backend.Models.Fitbit;
 namespace Backend.Models;
 
 public class User{
