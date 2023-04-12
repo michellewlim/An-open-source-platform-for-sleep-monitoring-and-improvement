@@ -1,22 +1,30 @@
 using Backend.Models;
-
+using Backend.Controllers;
 namespace Backend.Helpers;
 
 public class OptimizationScheduler : IOptimizationScheduler{
     
+    private readonly IFitbitController _fitbitController;
+
     private List<User> sleepingUsers {get;set;}
 
-    public OptimizationScheduler(){
+    private Boolean optimizing {get;set;}
+
+    public OptimizationScheduler(IFitbitController fitbitController){
+        _fitbitController = fitbitController;
         sleepingUsers = new List<User>();
-        optimizeUserSleep();
+        //optimizeUserSleep();
     }
 
-    public int sleepUser(User user){
+    public async Task<int> sleepUser(User user){
         var userToAdd = sleepingUsers.Find((sleepingUser) => sleepingUser.userID == user.userID);
         if(userToAdd is not null){
             return 0;
         }
         sleepingUsers.Add(user);
+        if(!optimizing){
+            optimizeUserSleep();
+        }
         return 1;
     }
 
@@ -30,13 +38,16 @@ public class OptimizationScheduler : IOptimizationScheduler{
     }
  
     private async Task optimizeUserSleep(){
+        optimizing = true;
         var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
 
-        while (await timer.WaitForNextTickAsync())
+        while (await timer.WaitForNextTickAsync() & (sleepingUsers.Count() > 0))
         {
             Parallel.ForEach(sleepingUsers, (user) => {
-                Console.WriteLine($"I am {user.userID}!");
+                _fitbitController.getHeartbeatData(user);
             });
         }
+        optimizing = false;
+        return;
     }
 }

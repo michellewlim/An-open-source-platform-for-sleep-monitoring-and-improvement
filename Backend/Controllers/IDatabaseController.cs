@@ -1,5 +1,5 @@
 using Backend.Models;
-
+using Backend.Models.Fitbit;
 namespace Backend.Controllers;
 
 public interface IDatabaseController{
@@ -7,6 +7,8 @@ public interface IDatabaseController{
     Task<int> addUser(UserDataPacket packet);
 
     Task<int> linkFitbitToUser(FitbitOnboardPacket packet);
+
+    Task<int> refreshFitbitUserAuth(FitbitRefreshAuthResponse packet);
 
     Task<int> addSurvey(UserDailyQuizPacket packet);
 

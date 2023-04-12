@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Models;
-
+using Backend.Models.Fitbit;
 namespace Backend.Controllers;
 
 [ApiController]
@@ -31,10 +31,21 @@ public class UserDataController : ControllerBase{
         return Ok();    
     }
 
+    // [HttpPost()]
+    // [Route("RefreshFitbitAuth")]
+    // public async Task<IActionResult> refreshFitbitAuth([FromBody] FitbitOnboardPacket packet){
+    //     await 
+        
+    //     return Ok();    
+    // }
+
+
     [HttpGet()]
     [Route("GetUserIds")]
-    public async Task<List<User>> getUserIds(){
-        return await _databaseController.getUsers();
+    public async Task<List<int>> getUserIds(){
+        var users = await _databaseController.getUsers();
+        var userIDs = users.Select(i => i.userID).ToList();
+        return userIDs;
     }
 
     [HttpPost()]

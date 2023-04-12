@@ -22,7 +22,8 @@ public class SleepOptimizationManagerController : ControllerBase{
     [Route("Sleep")]
     public async Task<IActionResult> Sleep(UserSleepStatePacket packet){
         var user = await _databaseController.getUser(packet.userID);
-        if(_optimizationScheduler.sleepUser(user) == 1)
+        var response = await _optimizationScheduler.sleepUser(user);
+        if(response == 1)
             return Ok();
 
         return BadRequest("User Already Sleeping");
