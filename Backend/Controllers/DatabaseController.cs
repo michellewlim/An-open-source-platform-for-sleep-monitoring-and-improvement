@@ -41,16 +41,22 @@ public class DatabaseController : IDatabaseController{
 
     }
 
+    public async Task<int> refreshFitbitUserAuth(FitbitRefreshAuthResponse packet){
+        DatabaseReader<FitbitRefreshAuthResponse> dbReader = new DatabaseReader<FitbitRefreshAuthResponse>(conn);
+        await dbReader.databaseWrite(generateRefreshFitbitUserSql, packet);
+        return 0;
+    }
+
     //Get a list of all users from the database
     public async Task<List<User>> getUsers(){
         //Get Users
-        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID;";
+        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken, fitbitUsers.expires from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID;";
         DatabaseReader<User> dbReader = new DatabaseReader<User>(conn);
         return await dbReader.databaseRead(CommandText, createUserObjects);
     }
 
     public async Task<User> getUser(int userID){
-        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID where users.userID = {userID};";
+        string CommandText = $"select users.userID, age, sex, nestID, users.fitbitID, fitbitUsers.accessToken, fitbitUsers.refreshToken, fitbitUsers.expires from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID where users.userID = {userID};";
         DatabaseReader<User> dbUserReader = new DatabaseReader<User>(conn);
         List<User> user = await dbUserReader.databaseRead(CommandText, createUserObjects);
 
@@ -104,6 +110,18 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    private int generateRefreshFitbitUserSql(MySqlCommand command, FitbitRefreshAuthResponse packet){
+        command.CommandText = $"UPDATE fitbitUsers SET accessToken = ?accessToken, refreshToken = ?refreshToken, expires = ?expires WHERE userID = ?userID;";
+        command.Parameters.AddWithValue("?accessToken", packet.access_token);
+        command.Parameters.AddWithValue("?refreshToken", packet.refresh_token);
+        command.Parameters.AddWithValue("?userID", packet.user_id);
+        var now = DateTime.Now;
+        var offset = new TimeSpan(0,0,packet.expires_in);
+        
+        command.Parameters.AddWithValue("?expires", now + offset);
+        return 0;
+    }
+
     private int generateInsertHeartDataSql(MySqlCommand command, HeartDataPacket packet){
         command.CommandText = $"INSERT into heartdata (userID, fitbitID) VALUES ({packet.userID}, {packet.fitbitID})";
         return 0;
@@ -119,7 +137,8 @@ public class DatabaseController : IDatabaseController{
                         fitbitData = new FitbitAuth{
                             fitbitID = ConvertFromDBVal<string>(row["fitbitID"]),
                             accessToken = ConvertFromDBVal<string>(row["accessToken"]),
-                            refreshToken = ConvertFromDBVal<string>(row["refreshToken"])
+                            refreshToken = ConvertFromDBVal<string>(row["refreshToken"]),
+                            expires = ConvertFromDBVal<DateTime>(row["expires"])
                         }
                     }).ToList();
     }
@@ -129,7 +148,8 @@ public class DatabaseController : IDatabaseController{
                     select new FitbitAuth{
                         fitbitID = (string)row["fitbitID"],
                         accessToken = (string)row["accessToken"],
-                        refreshToken = (string)row["refreshToken"]
+                        refreshToken = (string)row["refreshToken"],
+                        expires = ConvertFromDBVal<DateTime>(row["expires"])
                     }
         ).ToList();
     }

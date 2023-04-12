@@ -8,4 +8,5 @@ public class FitbitAuth{
 
     public string? refreshToken {get; set;}
 
+    public DateTime? expires {get; set;}
 }

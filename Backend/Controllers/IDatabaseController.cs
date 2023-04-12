@@ -8,6 +8,8 @@ public interface IDatabaseController{
 
     Task<int> linkFitbitToUser(FitbitOnboardPacket packet);
 
+    Task<int> refreshFitbitUserAuth(FitbitRefreshAuthResponse packet);
+
     Task<int> addSurvey(UserDailyQuizPacket packet);
 
     Task<List<User>> getUsers();
