@@ -3,7 +3,8 @@ import 'package:frontend/survey.dart';
 import 'package:frontend/sleepButton.dart';
 
 class LoadingPage extends StatefulWidget {
-  const LoadingPage({Key? key}) : super(key: key);
+  const LoadingPage({Key? key, required this.title}) : super(key: key);
+  final String title;
 
   @override
   State<LoadingPage> createState() => LoadingPageState();

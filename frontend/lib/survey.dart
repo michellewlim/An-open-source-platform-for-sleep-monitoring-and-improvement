@@ -57,7 +57,9 @@ class SurveyPageState extends State<SurveyPage> {
       log('$_sleepRating, $_disturbance, $_disturbanceDescription');
     }
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const SleepButtonPage();
+      return const SleepButtonPage(
+        title: 'sleep button page',
+      );
     }));
 
     final prefs = await SharedPreferences.getInstance();

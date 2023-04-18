@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/sleepButton.dart';
@@ -9,7 +9,6 @@ import 'package:frontend/survey.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
-
   @override
   State<Home> createState() => HomeState();
 }
@@ -25,6 +24,7 @@ class HomeState extends State<Home> {
     _loadAsleep();
   }
 
+  //load username from local disk
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -32,6 +32,7 @@ class HomeState extends State<Home> {
     });
   }
 
+  //load asleep boolean from local disk
   Future<void> _loadAsleep() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -39,11 +40,12 @@ class HomeState extends State<Home> {
     });
   }
 
+  //checks conditions and returns appropriate page
   Widget checkForUsername() {
     if (_username == "") {
       return SignInPage(title: 'sign in page');
     } else if (_asleep == false) {
-      return SleepButtonPage();
+      return SleepButtonPage(title: 'sleep button page');
     } else {
       return SurveyPage(title: 'survey page');
     }
