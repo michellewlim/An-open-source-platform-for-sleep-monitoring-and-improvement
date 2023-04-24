@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/sleepButton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
+import 'package:frontend/main.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 
 class SurveyPage extends StatefulWidget {
   const SurveyPage({Key? key, required this.title}) : super(key: key);
@@ -14,7 +18,7 @@ class SurveyPage extends StatefulWidget {
 }
 
 class SurveyPageState extends State<SurveyPage> {
-  String _username = "";
+  int _username = 0;
   String? _sleepRating = "";
   String? _disturbance = "";
   String? _disturbanceDescription = "";
@@ -28,7 +32,7 @@ class SurveyPageState extends State<SurveyPage> {
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = (prefs.getString('username') ?? "");
+      _username = (prefs.getInt('username') ?? 0);
     });
   }
 
@@ -37,13 +41,13 @@ class SurveyPageState extends State<SurveyPage> {
     await prefs.remove('username');
     await prefs.remove('credentials');
     setState(() {
-      _username = "";
+      _username = 0;
     });
   }
 
   Future<void> _setUsername(Text username) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('username', username.toString());
+    prefs.setInt('username', int.parse(username.toString()));
   }
 
   void handleSubmit() async {
@@ -56,6 +60,19 @@ class SurveyPageState extends State<SurveyPage> {
     } else {
       log('$_sleepRating, $_disturbance, $_disturbanceDescription');
     }
+
+    HttpOverrides.global = MyHttpOverrides();
+    var headers = {'Content-Type': 'application/json'};
+    var wakeUserRequest = http.Request(
+        'PUT',
+        Uri.parse(
+            'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/Manager/Wake'));
+    wakeUserRequest.body = json.encode({"userID": _username});
+    wakeUserRequest.headers.addAll(headers);
+
+    http.StreamedResponse wakeUserResponse = await wakeUserRequest.send();
+    log(wakeUserResponse.statusCode.toString());
+
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const SleepButtonPage(
         title: 'sleep button page',
@@ -227,7 +244,7 @@ class SurveyPageState extends State<SurveyPage> {
                   },
                 ),
               ),
-            Text(_username),
+            Text(_username.toString()),
             TextButton(
                 onPressed: () => {handleSubmit()}, child: const Text("submit"))
           ],

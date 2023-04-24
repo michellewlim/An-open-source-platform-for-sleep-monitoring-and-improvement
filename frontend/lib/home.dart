@@ -14,7 +14,7 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  String _username = "";
+  int _username = 0;
   late bool _asleep = false;
 
   @override
@@ -28,7 +28,7 @@ class HomeState extends State<Home> {
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = (prefs.getString('username') ?? "");
+      _username = (prefs.getInt('username') ?? 0);
     });
   }
 
@@ -42,7 +42,7 @@ class HomeState extends State<Home> {
 
   //checks conditions and returns appropriate page
   Widget checkForUsername() {
-    if (_username == "") {
+    if (_username == 0) {
       return SignInPage(title: 'sign in page');
     } else if (_asleep == false) {
       return SleepButtonPage(title: 'sleep button page');

@@ -94,32 +94,45 @@ class SignInPageState extends State<SignInPage> {
         callbackUrlScheme: "dreamtemp");
 
     log(fitbitCredentials.toString());
+    log(fitbitCredentials!.userID);
 
     //store credentials on local disk
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('credentials', fitbitCredentials.toString());
 
+    //nest thermostat auth
+
     var headers = {'Content-Type': 'application/json'};
 
-    var request = await http.Request(
+    var addUserRequest = await http.Request(
         'POST',
         Uri.parse(
             'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/UserData/AddUser'));
-    request.body = json.encode({
+    addUserRequest.body = json.encode({
       'userId': username,
       'age': '18',
       'sex': 'f',
       'nestID': nestId.toString(),
       'fitbitID': fitbitId.toString()
     });
-    request.headers.addAll(headers);
-    http.StreamedResponse response = await request.send();
+    addUserRequest.headers.addAll(headers);
+    http.StreamedResponse addUserResponse = await addUserRequest.send();
+    log(addUserResponse.reasonPhrase.toString());
 
-    if (response.statusCode == 200) {
-      log(await response.stream.bytesToString());
-    } else {
-      log(response.statusCode.toString());
-    }
+    var linkFitbitRequest = await http.Request(
+        'PUT',
+        Uri.parse(
+            'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/UserData/LinkFitbit'));
+    linkFitbitRequest.body = json.encode({
+      'userId': username,
+      'fitbitID': fitbitCredentials.userID,
+      'accessToken': fitbitCredentials.fitbitAccessToken,
+      'refreshToken': fitbitCredentials.fitbitRefreshToken,
+    });
+    linkFitbitRequest.headers.addAll(headers);
+    http.StreamedResponse linkFitbitResponse = await linkFitbitRequest.send();
+    log(linkFitbitResponse.statusCode.toString());
+    log(linkFitbitResponse.reasonPhrase.toString());
 
     //change page to sleep button page
     Navigator.push(context, MaterialPageRoute(builder: (context) {

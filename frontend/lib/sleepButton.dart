@@ -16,6 +16,21 @@ class SleepButtonPage extends StatefulWidget {
 }
 
 class SleepButtonPageState extends State<SleepButtonPage> {
+  int _username = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = (prefs.getInt('username') ?? 0);
+    });
+  }
+
   void handleClick() async {
     HttpOverrides.global = MyHttpOverrides();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -26,11 +41,17 @@ class SleepButtonPageState extends State<SleepButtonPage> {
 
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool('asleep', true);
-    String url =
-        'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/UserData/GetUserIds';
-    final response = await http.get(Uri.parse(url));
-    var responseData = json.decode(response.body);
-    log(responseData.toString());
+
+    var headers = {'Content-Type': 'application/json'};
+    var sleepUserRequest = http.Request(
+        'PUT',
+        Uri.parse(
+            'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/Manager/Sleep'));
+    sleepUserRequest.body = json.encode({"userID": _username});
+    sleepUserRequest.headers.addAll(headers);
+
+    http.StreamedResponse sleepUserResponse = await sleepUserRequest.send();
+    log(sleepUserResponse.statusCode.toString());
   }
 
   @override
