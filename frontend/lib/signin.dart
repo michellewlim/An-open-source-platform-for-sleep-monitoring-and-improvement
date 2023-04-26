@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitbitter/fitbitter.dart';
 import 'package:app_links/app_links.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_web_auth/flutter_web_auth.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key, required this.title}) : super(key: key);
@@ -101,6 +102,35 @@ class SignInPageState extends State<SignInPage> {
     prefs.setString('credentials', fitbitCredentials.toString());
 
     //nest thermostat auth
+
+    final url = Uri.https('accounts.google.com', '/o/oauth2/v2/auth', {
+      'response_type': 'code',
+      'client_id':
+          '251426184244-1cmn8e95c18c53aaol65s1rjgqruk93v.apps.googleusercontent.com',
+      'redirect_uri': 'com.example.frontend:/auth',
+      'scope': 'https://www.googleapis.com/auth/sdm.service',
+    });
+
+    // Present the dialog to the user
+    final nestAuthResult = await FlutterWebAuth.authenticate(
+        url: url.toString(), callbackUrlScheme: 'com.example.frontend');
+
+    log(nestAuthResult.toString());
+    final code = Uri.parse(nestAuthResult).queryParameters['code'];
+    final uri = Uri.https('www.googleapis.com', 'oauth2/v4/token');
+    final nestAuthResponse = await http.post(uri, body: {
+      'client_id':
+          '251426184244-1cmn8e95c18c53aaol65s1rjgqruk93v.apps.googleusercontent.com',
+      'redirect_uri': 'com.example.frontend:/auth',
+      'grant_type': 'authorization_code',
+      'code': code,
+    });
+    final accessToken =
+        jsonDecode(nestAuthResponse.body)['access_token'] as String;
+    log(accessToken);
+    final refreshToken =
+        jsonDecode(nestAuthResponse.body)['refresh_token'] as String;
+    log(refreshToken);
 
     var headers = {'Content-Type': 'application/json'};
 
