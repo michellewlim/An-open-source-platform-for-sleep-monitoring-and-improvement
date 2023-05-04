@@ -29,15 +29,26 @@ public class DatabaseReader<T>
         myCommand.Transaction = myTrans;
 
         myCommand.CommandText = sqlCommand;
-        using (var response = await myCommand.ExecuteReaderAsync())
-        {
-            var dataTable = new DataTable();
-            dataTable.Load(response);
-            results = createResult(dataTable);
-            response.Close();
-        };
-        myTrans.Commit();
-        return results;
+        try
+            {
+            using (var response = await myCommand.ExecuteReaderAsync())
+            {
+                var dataTable = new DataTable();
+                dataTable.Load(response);
+                
+                results = createResult(dataTable);
+                
+                response.Close();
+                myTrans.Commit();
+                return results;
+
+            };
+        }
+            catch(Exception e)
+            {
+                myTrans.Rollback();
+                throw(e);
+            }
     }
 
     public async Task databaseWrite(Func<MySqlCommand, T, int> createSqlCommand, T packet)

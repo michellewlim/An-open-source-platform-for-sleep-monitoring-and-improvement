@@ -67,7 +67,7 @@ async Task GetToken(User user) {
         if(user.fitbitData is null){
             throw(new NullReferenceException("User fitbitData is null"));
         }
-        Console.WriteLine("Getting a token");
+        Console.WriteLine("Getting a fitbit token");
 
         string auth = $"{_config["Fitbit:ServerClientIDClientSecret"]}";
 
@@ -78,11 +78,14 @@ async Task GetToken(User user) {
         collection.Add(new("grant_type", "refresh_token"));
         collection.Add(new("refresh_token", $"{user.fitbitData.refreshToken}"));
         collection.Add(new("client_id", $"{user.fitbitData.fitbitID}"));
+        //Console.WriteLine(user.fitbitData.refreshToken);
+        //Console.WriteLine(user.fitbitData.fitbitID);
         var content = new FormUrlEncodedContent(collection);
         request.Content = content;
+        //Console.WriteLine("Sending Fitbit token request");
         var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
         Console.WriteLine(await response.Content.ReadAsStringAsync());
+        response.EnsureSuccessStatusCode();
         var authresp = JsonSerializer.Deserialize<FitbitRefreshAuthResponse>(await response.Content.ReadAsStringAsync());
         Console.WriteLine(response.StatusCode);
         
@@ -95,7 +98,6 @@ async Task GetToken(User user) {
         var now = DateTime.Now;
         var offset = new TimeSpan(0,0,(authresp.expires_in));
         user.fitbitData.expires = now + offset;
-        Console.WriteLine("Got token");
+        Console.WriteLine("Got Fitbit token");
     }
-
 }
