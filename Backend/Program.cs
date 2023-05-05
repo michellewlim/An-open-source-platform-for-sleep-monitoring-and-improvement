@@ -1,5 +1,6 @@
 using Backend.Controllers;
 using Backend.Helpers;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,16 +17,19 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddSingleton<IDatabaseController, DatabaseController>();
 builder.Services.AddSingleton<IOptimizationScheduler, OptimizationScheduler>();
-builder.Services.AddScoped<IFitbitController, FitbitController>();
-builder.WebHost.ConfigureKestrel(serverOptions => {
-    serverOptions.ConfigureEndpointDefaults(listenOptions =>{
-        listenOptions.UseHttps();
-    });
-    serverOptions.ConfigureHttpsDefaults(listenOptions => {
-    });
-});
+builder.Services.AddSingleton<IFitbitController, FitbitController>();
+builder.Services.AddSingleton<IFitbitAuthenticator, FitbitAuthenticator>();
+builder.Services.AddSingleton<INestController, NestController>();
+builder.Services.AddSingleton<INestAuthenticator, NestAuthenticator>();
+// builder.WebHost.ConfigureKestrel(serverOptions => {
+//     serverOptions.ConfigureEndpointDefaults(listenOptions =>{
+//         listenOptions.UseHttps();
+//     });
+//     serverOptions.ConfigureHttpsDefaults(listenOptions => {
+//     });
+// });
 
-builder.WebHost.UseUrls("https://0.0.0.0");
+//builder.WebHost.UseUrls("http://127.0.0.1:5000");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -36,7 +40,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseForwardedHeaders(new ForwardedHeadersOptions{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 app.UseAuthorization();
 
 app.MapControllers();

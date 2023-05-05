@@ -3,7 +3,13 @@ using Backend.Models;
 namespace Backend.Helpers;
 public interface IOptimizationScheduler
 {
-    public int sleepUser(User user);
+    /// <summary>
+    /// Puts the user to sleep, starts optimization for that user
+    /// </summary>
+    public Task<int> sleepUser(User user);
 
+    /// <summary>
+    /// Wakes the user, stops optimization for that user
+    /// </summary>
     public int wakeUser(User user);
 }

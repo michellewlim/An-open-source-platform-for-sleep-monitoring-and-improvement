@@ -2,21 +2,42 @@ CREATE TABLE users(
     userID int primary key,
     age int,
     sex varchar(1),
-    nestID varchar(255) unique,
     fitbitID varchar(255) unique
 );
 
 CREATE TABLE dailyQuizes(
     userID int,
-    sleepQuality int,
-    disturbance boolean,
-    disturbanceDetails varchar(500),
-    sleepTime datetime,
+    sleepSession int,
+    q1 int,
+    q2 int,
+    q3 int,
+    q4 int,
+    q5 int,
+    q6 int,
+    q7 int,
     wakeTime datetime
+);
+
+CREATE TABLE sleepData(
+    userID int,
+    sleepSession int,
+    logTime datetime,
+    heartBeat int,
+    heartBeatLag time,
+    currentTemp int,
+    targetTemp int
 );
 
 CREATE TABLE fitbitUsers(
     userID varchar(255) primary key,
-    accessToken varchar(255),
-    refreshToken varchar(255)
+    accessToken varchar(500),
+    refreshToken varchar(255),
+    expires datetime
+);
+
+CREATE TABLE nestUsers(
+    userID varchar(255) primary key,
+    accessToken varchar(500),
+    refreshToken varchar(255),
+    expires datetime
 );

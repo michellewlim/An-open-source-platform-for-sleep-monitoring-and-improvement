@@ -9,6 +9,4 @@ public class UserDataPacket{
     public int age {get; set;}
 
     public string? sex {get; set;}
-
-    public string? nestID {get;set;}
 }
