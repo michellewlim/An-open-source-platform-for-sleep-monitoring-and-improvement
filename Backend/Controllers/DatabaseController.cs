@@ -16,56 +16,80 @@ public class DatabaseController : IDatabaseController{
         conn = new MySqlConnection(_config["Databases:SeniorDesignConnectionString"]);
     }
     
-    //Submit user data to the database
+    ///<summary>
+    ///Add a user to the database
+    ///</summary>
     public async Task<int> addUser(UserDataPacket packet){
         DatabaseReader<UserDataPacket> dbReader = new DatabaseReader<UserDataPacket>(conn);
         await dbReader.databaseWrite(generateInsertUserSql, packet);
         return 0;
     }
-
+    
+    /// <summary>
+    /// Link a user's fitbit account to their user account in the database
+    /// </summary>
     public async Task<int> linkFitbitToUser(FitbitOnboardPacket packet){
         await linkFitbitAccountToUser(packet);
         await createFitbitUser(packet);
         return 0;
     }
 
-
+    /// <summary>
+    /// Update the users table to include that user's fitbit ID
+    /// </summary>
     private async Task linkFitbitAccountToUser(FitbitOnboardPacket packet){
         DatabaseReader<FitbitOnboardPacket> dbReader = new DatabaseReader<FitbitOnboardPacket>(conn);
         await dbReader.databaseWrite(generateLinkFitbitAccountSql, packet); 
         return;
     }
 
+    /// <summary>
+    /// Create a new entry in the fitbitUsers table for the user's fitbit credentials
+    /// </summary>
     private async Task createFitbitUser(FitbitOnboardPacket packet){
         DatabaseReader<FitbitOnboardPacket> dbReader = new DatabaseReader<FitbitOnboardPacket>(conn);
         await dbReader.databaseWrite(generateInsertFitbitUserSql, packet);
         return;
 
+    /// <summary>
+    /// Link a user's nest account to their user account in the database
+    /// </summary>
     }
     public async Task<int> linkNestToUser(NestOnboardPacket packet){
         await createNestUser(packet);
         return 0;
     }
 
+    /// <summary>
+    /// Create a new entry in the nestUsers table for the user's nest credentials
+    /// </summary>
     private async Task createNestUser(NestOnboardPacket packet){
         DatabaseReader<NestOnboardPacket> dbReader = new DatabaseReader<NestOnboardPacket>(conn);
         await dbReader.databaseWrite(generateInsertNestUserSql, packet);
         return;
     }
 
+    /// <summary>
+    /// update a user's fitbit credentials in the database
+    /// </summary>
     public async Task<int> refreshFitbitUserAuth(FitbitRefreshAuthResponse packet){
         DatabaseReader<FitbitRefreshAuthResponse> dbReader = new DatabaseReader<FitbitRefreshAuthResponse>(conn);
         await dbReader.databaseWrite(generateRefreshFitbitUserSql, packet);
         return 0;
     }
 
+    /// <summary>
+    /// update a user's nest credentials in the database
+    /// </summary>
     public async Task<int> refreshNestUserAuth(NestRefreshAuthResponse packet){
         DatabaseReader<NestRefreshAuthResponse> dbReader = new DatabaseReader<NestRefreshAuthResponse>(conn);
         await dbReader.databaseWrite(generateRefreshNestUserSql, packet);
         return 0;
     }
 
-    //Get a list of all users from the database
+    /// <summary>
+    /// Get a list of all users from the database
+    /// </summary>
     public async Task<List<User>> getUsers(){
         //Get Users
         string CommandText = $"select users.userID, age, sex, users.fitbitID, fitbitUsers.accessToken as fitbitAccess, fitbitUsers.refreshToken as fitbitRefresh, fitbitUsers.expires as fitbitExpires, nestUsers.accessToken as nestAccess, nestUsers.refreshToken as nestRefresh, nestUsers.expires as nestExpires from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID left join nestUsers on users.userID = nestUsers.userID;";
@@ -73,6 +97,9 @@ public class DatabaseController : IDatabaseController{
         return await dbReader.databaseRead(CommandText, createUserObjects);
     }
 
+    /// <summary>
+    /// Retrieves a specific user from the database
+    /// </summary>
     public async Task<User> getUser(int userID){
         string CommandText = $"select users.userID, age, sex, users.fitbitID, fitbitUsers.accessToken as fitbitAccess, fitbitUsers.refreshToken as fitbitRefresh, fitbitUsers.expires as fitbitExpires, nestUsers.accessToken as nestAccess, nestUsers.refreshToken as nestRefresh, nestUsers.expires as nestExpires from users left join fitbitUsers on users.fitbitID = fitbitUsers.userID left join nestUsers on users.userID = nestUsers.userID where users.userID = {userID};";
         DatabaseReader<User> dbUserReader = new DatabaseReader<User>(conn);
@@ -83,18 +110,27 @@ public class DatabaseController : IDatabaseController{
         return user[0];
     }
 
+    /// <summary>
+    /// Stores a user's sleep survey in the database
+    /// <summary>
     public async Task<int> addSurvey(UserDailyQuizPacket packet){
         DatabaseReader<UserDailyQuizPacket> dbReader = new DatabaseReader<UserDailyQuizPacket>(conn);
         await dbReader.databaseWrite(generateInsertUserDailyQuizSql, packet);
         return 0;
     }
 
+    /// <summary>
+    /// Store a user's heart data packet in the database
+    /// <summary>
     public async Task<int> submitHeartPacket(HeartDataPacket packet){
         DatabaseReader<HeartDataPacket> dbReader = new DatabaseReader<HeartDataPacket>(conn);
         await dbReader.databaseWrite(generateInsertHeartDataSql, packet);
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SL command to insert a user into the database
+    /// <summary>
     private int generateInsertUserSql(MySqlCommand command, UserDataPacket packet){
         command.CommandText = $"INSERT into users values({packet.userID},{packet.age},?sex,?fitbitID);";
         command.Parameters.AddWithValue("?sex", packet.sex);
@@ -102,6 +138,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to insert a user's daily quize into the database
+    /// <summary>
     private int generateInsertUserDailyQuizSql(MySqlCommand command, UserDailyQuizPacket packet){
         command.CommandText = $"INSERT INTO dailyQuizes values ({packet.userID}, {packet.sleepSession}, ?q1, ?q2, ?q3, ?q4, ?q5, ?q6, ?q7, ?sleepTime);";
         command.Parameters.AddWithValue("?q1", packet.q1);
@@ -115,6 +154,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to update the user's table to include a user's fitbit ID
+    /// <summary>
     private int generateLinkFitbitAccountSql(MySqlCommand command, FitbitOnboardPacket packet){
         command.CommandText = $"UPDATE users SET fitbitID = ?fitbitID WHERE users.userID = ?userID;";
         command.Parameters.AddWithValue("?fitbitID", packet.fitbitID);
@@ -122,6 +164,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to insert a new set of fitbit credentials into the database
+    /// <summary>
     private int generateInsertFitbitUserSql(MySqlCommand command, FitbitOnboardPacket packet){
         command.CommandText = $"INSERT INTO fitbitUsers values(?fitbitID,?accessToken,?refreshToken, NULL);";
         command.Parameters.AddWithValue("?fitbitID",packet.fitbitID);
@@ -130,6 +175,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to insert a user's nest credentials into the database
+    /// <summary>
     private int generateInsertNestUserSql(MySqlCommand command, NestOnboardPacket packet){
         command.CommandText = $"INSERT INTO nestUsers values(?nestID,?accessToken,?refreshToken,?expires);";
         command.Parameters.AddWithValue("?nestID",packet.userID);
@@ -141,6 +189,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to update a user's fitbit credentials in the database
+    /// <summary>
     private int generateRefreshFitbitUserSql(MySqlCommand command, FitbitRefreshAuthResponse packet){
         command.CommandText = $"UPDATE fitbitUsers SET accessToken = ?accessToken, refreshToken = ?refreshToken, expires = ?expires WHERE userID = ?userID;";
         command.Parameters.AddWithValue("?accessToken", packet.access_token);
@@ -153,6 +204,9 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to update a user's nest credentials in the database
+    /// <summary>
     private int generateRefreshNestUserSql(MySqlCommand command, NestRefreshAuthResponse packet){
         command.CommandText = $"UPDATE nestUsers SET accessToken = ?accessToken, expires = ?expires WHERE userID = ?userID;";
         command.Parameters.AddWithValue("?accessToken", packet.access_token);
@@ -164,11 +218,19 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    /// <summary>
+    /// Generates the SQL command to insert a user's heart data into the database
+    /// <summary>
     private int generateInsertHeartDataSql(MySqlCommand command, HeartDataPacket packet){
         command.CommandText = $"INSERT into heartdata (userID, fitbitID) VALUES ({packet.userID}, {packet.fitbitID})";
         return 0;
     }
 
+    /// <summary>
+    /// Creates a list of user objects from a datatable
+    /// <summary>
+    /// <param name="dataTable">DataTable dataTable: The datatable containing data from the users, fitbitUsers, and nestUsers tables to convert to a list of user objects</param>
+    /// <returns>List<User>: A list of user objects</returns>
     private List<User> createUserObjects(DataTable dataTable){
         return (from DataRow row in dataTable.Rows
                     select new User{
@@ -200,22 +262,27 @@ public class DatabaseController : IDatabaseController{
         ).ToList();
     }
 
+    /// <summary>
+    /// Check to see if the connection is open, and if not, open it
+    /// <summary>
     private void checkConnection(){
         if(conn.State != System.Data.ConnectionState.Open){
             conn.Open();
         }
     }
 
-    public static T? ConvertFromDBVal<T>(object obj)
-{
-    if (obj == null || obj == DBNull.Value)
-    {
-        return default(T); // returns the default value for the type
+    /// <summary>
+    /// Converts a database value to a nullable type
+    /// <summary>
+    public static T? ConvertFromDBVal<T>(object obj){
+        if (obj == null || obj == DBNull.Value)
+        {
+            return default(T); // returns the default value for the type
+        }
+        else
+        {
+            return (T)obj;
+        }
     }
-    else
-    {
-        return (T)obj;
-    }
-}
 
 }

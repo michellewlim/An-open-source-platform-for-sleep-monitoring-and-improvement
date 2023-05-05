@@ -6,8 +6,14 @@ namespace Backend.Helpers;
 
 public class DatabaseReader<T>
 {
+    /// <summary>
+    /// The connection to the database
+    /// </summary>
     private MySqlConnection conn;
 
+    /// <summary>
+    /// The results of the database query
+    /// </summary>
     public List<T> results;
 
     public DatabaseReader(MySqlConnection conn)
@@ -15,6 +21,13 @@ public class DatabaseReader<T>
         this.conn = conn;
         results = new List<T>();
     }
+
+    /// <summary>
+    /// Reads from the database
+    /// </summary>
+    /// <param name="sqlCommand">The SQL command to execute</param>
+    /// <param name="createResult">A function that takes a DataTable and returns a list of T</param>
+    /// <returns>A list of T</returns>
     public async Task<List<T>> databaseRead(string sqlCommand, Func<DataTable, List<T>> createResult)
     {
         this.checkConnection();
@@ -51,6 +64,11 @@ public class DatabaseReader<T>
             }
     }
 
+    /// <summary>
+    /// Writes to the database
+    /// </summary>
+    /// <param name="sqlCommand">The SQL command to execute</param>
+    /// <param name="packet">The packet to write to the database</param>
     public async Task databaseWrite(Func<MySqlCommand, T, int> createSqlCommand, T packet)
     {
         this.checkConnection();
@@ -76,6 +94,9 @@ public class DatabaseReader<T>
         return;
     }
 
+    /// <summary>
+    /// Checks if the connection is open, and opens it if it is not
+    /// </summary>
     private void checkConnection()
     {
         if (conn.State != System.Data.ConnectionState.Open)

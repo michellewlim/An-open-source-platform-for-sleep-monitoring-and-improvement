@@ -15,6 +15,9 @@ public class FitbitAuthenticator : IFitbitAuthenticator {
         _databaseController = databaseController;
     }
 
+    /// <summary>
+    /// Checks if the user's token is still valid, if not, gets a new one.
+    /// </summary>
     public async Task checkAuth(User user){
         var now = DateTime.Now;
         if(user.fitbitData.expires == null || now > user.fitbitData.expires){
@@ -23,44 +26,10 @@ public class FitbitAuthenticator : IFitbitAuthenticator {
 
     }
 
-    // async Task GetToken(User user) {
-    //     if(user is null){
-    //         throw(new NullReferenceException("user is null"));
-    //     }
-    //     if(user.fitbitData is null){
-    //         throw(new NullReferenceException("User fitbitData is null"));
-    //     }
-    //     Console.WriteLine("Getting a token");
-    //     var options = new RestClientOptions("https://api.fitbit.com"){
-    //         ThrowOnAnyError = true,
-    //         MaxTimeout = 1000
-    //     };
-    //     using var client = new RestClient(options);
-
-    //     var request = new RestRequest("/oauth2/token", Method.Post);
-    //     string auth = $"{_config["Fitbit:ServerClientIDClientSecret"]}";
-    //     request.AddHeader("Authorization", $"Basic {auth}");
-    //     request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-    //     request.AddParameter("grant_type", "refresh_token");
-    //     request.AddParameter("refresh_token", $"{user.fitbitData.refreshToken}");
-    //     request.AddParameter("client_id", $"{user.fitbitData.fitbitID}");
-    //     Console.WriteLine("Sending request");
-    //     var response = await client.ExecuteAsync<FitbitRefreshAuthResponse>(request);
-    //     Console.WriteLine(response.StatusCode);
-    //     if(response.Data == null){
-    //         throw(new NullReferenceException("response.Data is null"));
-    //     }
-    //     await _databaseController.refreshFitbitUserAuth(response.Data);
-    //     user.fitbitData.accessToken = response.Data.accessToken;
-    //     user.fitbitData.refreshToken = response.Data.refreshToken;
-    //     Console.WriteLine(response.Data.accessToken);
-    //     Console.WriteLine(response.Data.refreshToken);
-    //     var now = DateTime.Now;
-    //     var offset = new TimeSpan(0,0,Int32.Parse(response.Data.expires_in));
-    //     user.fitbitData.expires = now + offset;
-    //     Console.WriteLine("Got token");
-    // }
-async Task GetToken(User user) {
+    /// <summary>
+    /// Gets a new fitbit access token for the user
+    /// </summary>
+    async Task GetToken(User user) {
         if(user is null){
             throw(new NullReferenceException("user is null"));
         }

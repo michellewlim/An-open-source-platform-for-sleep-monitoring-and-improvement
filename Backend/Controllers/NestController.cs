@@ -16,10 +16,10 @@ public class NestController : INestController{
         _nestAuthenticator = nestAuthenticator;
     }
 
-    public async Task getTemperature(User user){
+    public async Task<double> getTemperature(User user){
         await _nestAuthenticator.checkAuth(user);
         
-        return;
+        return 0.0;
     }
 
     public async Task setTemperature(User user, int temperature){
