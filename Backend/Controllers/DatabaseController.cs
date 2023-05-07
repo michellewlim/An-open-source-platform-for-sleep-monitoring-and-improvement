@@ -110,6 +110,23 @@ public class DatabaseController : IDatabaseController{
         return user[0];
     }
 
+    public async Task<int> getSleepSession(User user){
+        var surveys = await getSurveys(user);
+        if(surveys.Count() == 0){
+            return 0;
+        }
+        //Returns the highest sleepSession Number
+        var session = surveys.Max(survey => survey.sleepSession);
+        return session;
+    }
+
+    public async Task<List<UserDailyQuizPacket>> getSurveys(User user){
+        string CommandText = $"select * from dailyQuizes where userID = {user.userID};";
+        DatabaseReader<UserDailyQuizPacket> dbReader = new DatabaseReader<UserDailyQuizPacket>(conn);
+        List<UserDailyQuizPacket> surveys = await dbReader.databaseRead(CommandText, createUserDailyQuizPacketObjects);
+        return surveys;
+    }
+
     /// <summary>
     /// Stores a user's sleep survey in the database
     /// <summary>
@@ -125,6 +142,12 @@ public class DatabaseController : IDatabaseController{
     public async Task<int> submitHeartPacket(HeartDataPacket packet){
         DatabaseReader<HeartDataPacket> dbReader = new DatabaseReader<HeartDataPacket>(conn);
         await dbReader.databaseWrite(generateInsertHeartDataSql, packet);
+        return 0;
+    }
+
+    public async Task<int> submitSleepPacket(UserSleepStatePacket packet){
+        DatabaseReader<UserSleepStatePacket> dbReader = new DatabaseReader<UserSleepStatePacket>(conn);
+        await dbReader.databaseWrite(generateInsertUserSleepDataSql, packet);
         return 0;
     }
 
@@ -150,7 +173,7 @@ public class DatabaseController : IDatabaseController{
         command.Parameters.AddWithValue("?q5", packet.q5);
         command.Parameters.AddWithValue("?q6", packet.q6);
         command.Parameters.AddWithValue("?q7", packet.q7);
-        command.Parameters.AddWithValue("?sleepTime", packet.sleepTime);
+        command.Parameters.AddWithValue("?sleepTime", packet.wakeTime);
         return 0;
     }
 
@@ -226,6 +249,19 @@ public class DatabaseController : IDatabaseController{
         return 0;
     }
 
+    private int generateInsertUserSleepDataSql(MySqlCommand command, UserSleepStatePacket packet){
+        //command.CommandText = $"INSERT into sleepData (userID, sleepSession, logTime, heartBeat, heartBeatLag, currentTemp, targetTemp) VALUES ({packet.userID}, {packet.sleepSession}, {packet.logTime}, {packet.heartBeat}, {packet.heartBeatLag}, {packet.currentTemp}, {packet.targetTemp})";
+        command.CommandText = $"INSERT into sleepData values(?userID, ?sleepSession, ?logTime, ?heartBeat, ?heartBeatLag, ?currentTemp, ?targetTemp);";
+        command.Parameters.AddWithValue("?userID", packet.userID);
+        command.Parameters.AddWithValue("?sleepSession", packet.sleepSession);
+        command.Parameters.AddWithValue("?logTime", packet.logTime.ToString("yyyy-MM-dd HH:mm:ss"));
+        command.Parameters.AddWithValue("?heartBeat", packet.heartBeat);
+        command.Parameters.AddWithValue("?heartBeatLag", packet.heartBeatLag);
+        command.Parameters.AddWithValue("?currentTemp", packet.currentTemp);
+        command.Parameters.AddWithValue("?targetTemp", packet.targetTemp);
+        return 0;
+    }
+
     /// <summary>
     /// Creates a list of user objects from a datatable
     /// <summary>
@@ -258,6 +294,23 @@ public class DatabaseController : IDatabaseController{
                         accessToken = (string)row["accessToken"],
                         refreshToken = (string)row["refreshToken"],
                         expires = ConvertFromDBVal<DateTime>(row["expires"])
+                    }
+        ).ToList();
+    }
+
+    private List<UserDailyQuizPacket> createUserDailyQuizPacketObjects(DataTable dataTable){
+        return (from DataRow row in dataTable.Rows
+                    select new UserDailyQuizPacket{
+                        userID = (int)row["userID"],
+                        sleepSession = (int)row["sleepSession"],
+                        q1 = (int)row["q1"],
+                        q2 = (int)row["q2"],
+                        q3 = (int)row["q3"],
+                        q4 = (int)row["q4"],
+                        q5 = (int)row["q5"],
+                        q6 = (int)row["q6"],
+                        q7 = (int)row["q7"],
+                        wakeTime = ConvertFromDBVal<DateTime>(row["wakeTime"]),
                     }
         ).ToList();
     }

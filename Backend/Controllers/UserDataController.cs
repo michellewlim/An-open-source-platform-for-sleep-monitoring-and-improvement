@@ -85,7 +85,16 @@ public class UserDataController : ControllerBase{
     [HttpPost()]
     [Route("SubmitSurvey")]
     public async Task<IActionResult> submitSurvey([FromBody] UserDailyQuizPacket packet){
-        
+        User user;
+        try{
+            user = await _databaseController.getUser(packet.userID);
+        }
+        catch(Exception e){
+            return BadRequest("User does not exist");
+        }
+        //The last survey is from last night, so the current session is 1 more. 
+        var session = await _databaseController.getSleepSession(user) + 1;
+        packet.sleepSession = session;
         await _databaseController.addSurvey(packet);
 
         return CreatedAtAction(nameof(submitSurvey), packet);

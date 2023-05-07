@@ -4,17 +4,14 @@ namespace Backend.Helpers;
 
 public class OptimizationScheduler : IOptimizationScheduler{
     
-    private readonly IFitbitController _fitbitController;
-
-    private readonly INestController _nestController;
+    private readonly IOptimizer _optimizer;
 
     private List<User> sleepingUsers {get;set;}
 
     private Boolean optimizing {get;set;}
 
-    public OptimizationScheduler(IFitbitController fitbitController, INestController nestController){
-        _fitbitController = fitbitController;
-        _nestController = nestController;
+    public OptimizationScheduler(IOptimizer optimizer){
+        _optimizer = optimizer;
         sleepingUsers = new List<User>();
         //optimizeUserSleep();
     }
@@ -25,6 +22,7 @@ public class OptimizationScheduler : IOptimizationScheduler{
             return 0;
         }
         sleepingUsers.Add(user);
+        user.minutesSleeping = 0;
         Console.WriteLine("User Slept: " + user.userID);
         if(!optimizing){
             optimizeUserSleep();
@@ -47,8 +45,10 @@ public class OptimizationScheduler : IOptimizationScheduler{
         var timer = new PeriodicTimer(TimeSpan.FromSeconds(60));
         do{
             Parallel.ForEach(sleepingUsers, (user) => {
-                _fitbitController.getHeartbeatData(user);
-                _nestController.getTemperature(user);
+                if(user.minutesSleeping >= 5){
+                    _optimizer.optimizeTemp(user);
+                }
+                user.minutesSleeping += 1;
             });
         } while (await timer.WaitForNextTickAsync() & (sleepingUsers.Count() > 0));
         

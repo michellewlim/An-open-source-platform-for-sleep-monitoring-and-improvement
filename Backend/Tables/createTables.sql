@@ -24,8 +24,8 @@ CREATE TABLE sleepData(
     logTime datetime,
     heartBeat int,
     heartBeatLag time,
-    currentTemp int,
-    targetTemp int
+    currentTemp FLOAT(20),
+    targetTemp FLOAT(20)
 );
 
 CREATE TABLE fitbitUsers(

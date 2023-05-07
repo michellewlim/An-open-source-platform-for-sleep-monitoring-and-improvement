@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IFitbitController, FitbitController>();
 builder.Services.AddSingleton<IFitbitAuthenticator, FitbitAuthenticator>();
 builder.Services.AddSingleton<INestController, NestController>();
 builder.Services.AddSingleton<INestAuthenticator, NestAuthenticator>();
+builder.Services.AddTransient<IOptimizer, Optimizer>();
 // builder.WebHost.ConfigureKestrel(serverOptions => {
 //     serverOptions.ConfigureEndpointDefaults(listenOptions =>{
 //         listenOptions.UseHttps();

@@ -44,4 +44,14 @@ public interface IDatabaseController{
     /// Retrieves a specific user from the database
     /// </summary>
     Task<User> getUser(int userID);
+
+    /// <summary>
+    /// Returns a user's most recent completed sleep Session
+    /// </summary>
+    Task<int> getSleepSession(User user);
+
+    /// <summary>
+    /// Submit a user's sleep state data to the database
+    /// </summary>
+    Task<int> submitSleepPacket(UserSleepStatePacket packet);
 };

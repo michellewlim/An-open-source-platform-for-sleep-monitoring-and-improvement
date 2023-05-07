@@ -22,6 +22,6 @@ public class UserDailyQuizPacket{
 
     public int q7 {get; set;}
     
-    public DateTimeOffset sleepTime {get; set;}
+    public DateTimeOffset wakeTime {get; set;}
 
 }

@@ -34,7 +34,7 @@ public class NestAuthenticator : INestAuthenticator{
         var clientSecret = $"{_config["Nest:Client Secret"]}";
         var clientID = $"{_config["Nest:Nest Project ID"]}";
         var client = new HttpClient();
-        var requestText = $"https://www.googleapis.com/oauth2/v4/token?client_id={clientID}&client_secret={clientSecret}&refresh_token={user.nestData.refreshToken}&grant_type=refresh_token";
+        var requestText = $"https://www.googleapis.com/oauth2/v4/token?client_id={clientID}&refresh_token={user.nestData.refreshToken}&grant_type=refresh_token";
         Console.WriteLine(requestText);
         var request = new HttpRequestMessage(HttpMethod.Post, requestText);
         var response = await client.SendAsync(request);
