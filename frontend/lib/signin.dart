@@ -115,7 +115,6 @@ class SignInPageState extends State<SignInPage> {
     final nestAuthResult = await FlutterWebAuth.authenticate(
         url: url.toString(), callbackUrlScheme: 'com.example.frontend');
 
-    log(nestAuthResult.toString());
     final code = Uri.parse(nestAuthResult).queryParameters['code'];
     final uri = Uri.https('www.googleapis.com', 'oauth2/v4/token');
     final nestAuthResponse = await http.post(uri, body: {
@@ -125,12 +124,7 @@ class SignInPageState extends State<SignInPage> {
       'grant_type': 'authorization_code',
       'code': code,
     });
-    final accessToken =
-        jsonDecode(nestAuthResponse.body)['access_token'] as String;
-    log(accessToken);
-    final refreshToken =
-        jsonDecode(nestAuthResponse.body)['refresh_token'] as String;
-    log(refreshToken);
+    log(jsonDecode(nestAuthResponse.body).toString());
 
     var headers = {'Content-Type': 'application/json'};
 
@@ -147,7 +141,6 @@ class SignInPageState extends State<SignInPage> {
     });
     addUserRequest.headers.addAll(headers);
     http.StreamedResponse addUserResponse = await addUserRequest.send();
-    log(addUserResponse.reasonPhrase.toString());
 
     var linkFitbitRequest = await http.Request(
         'PUT',
@@ -161,8 +154,26 @@ class SignInPageState extends State<SignInPage> {
     });
     linkFitbitRequest.headers.addAll(headers);
     http.StreamedResponse linkFitbitResponse = await linkFitbitRequest.send();
-    log(linkFitbitResponse.statusCode.toString());
-    log(linkFitbitResponse.reasonPhrase.toString());
+
+    String nestAccessToken =
+        jsonDecode(nestAuthResponse.body)["access_token"] as String;
+    String nestRefreshToken =
+        jsonDecode(nestAuthResponse.body)["refresh_token"] as String;
+    int nestExpireIn = jsonDecode(nestAuthResponse.body)["expires_in"] as int;
+
+    var linkNestRequest = await http.Request(
+        'PUT',
+        Uri.parse(
+            'https://www.an-open-source-platform-for-sleep-monitoring-and-i.com/UserData/LinkNest'));
+    linkNestRequest.body = json.encode({
+      'userID': username,
+      "accessToken": nestAccessToken,
+      "refreshToken": nestRefreshToken,
+      "expires_in": nestExpireIn
+    });
+    linkNestRequest.headers.addAll(headers);
+    http.StreamedResponse linkNestResponse = await linkNestRequest.send();
+    log(linkNestResponse.statusCode.toString());
 
     //change page to sleep button page
     Navigator.push(context, MaterialPageRoute(builder: (context) {
