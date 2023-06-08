@@ -33,7 +33,7 @@ public class FitbitController : IFitbitController{
         var todaydate = DateTime.Now;
         var today = todaydate.ToString("yyyy-MM-dd");
         var now = todaydate.ToString("HH:mm");
-        var fiveMinutesAgo = (todaydate - new TimeSpan(0,10,0)).ToString("HH:mm");
+        var fiveMinutesAgo = (todaydate - new TimeSpan(0,20,0)).ToString("HH:mm");
         Console.WriteLine("Getting heartbeat data");
         var client = new RestClient($"https://api.fitbit.com/1/user/{user.fitbitData.fitbitID}/activities/heart/date/{today}/1d/1sec/time/{fiveMinutesAgo}/{now}.json");
         var request = new RestRequest();
@@ -45,7 +45,7 @@ public class FitbitController : IFitbitController{
         if(response.activitiesheartintraday.dataset.Count >= 1){
             var recentBeat = response.activitiesheartintraday.dataset[response.activitiesheartintraday.dataset.Count-1]; 
             Console.WriteLine(recentBeat.time);
-            Console.WriteLine(recentBeat.value);  
+            Console.WriteLine(recentBeat.value);
         }
         return response;
     }

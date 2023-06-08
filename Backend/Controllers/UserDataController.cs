@@ -80,6 +80,21 @@ public class UserDataController : ControllerBase{
     }
 
     /// <summary>
+    /// returns true if the user exists or false if the user does not exist
+    /// </summary>
+    [HttpGet()]
+    [Route("UserExists")]
+    public async Task<bool> userExists([FromBody ]int userID){
+        try{
+            await _databaseController.getUser(userID);
+        }
+        catch(Exception e){
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Submit the user's sleep survey to end their nights sleep. 
     /// </summary>
     [HttpPost()]

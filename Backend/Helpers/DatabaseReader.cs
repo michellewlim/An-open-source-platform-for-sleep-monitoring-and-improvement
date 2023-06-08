@@ -60,6 +60,7 @@ public class DatabaseReader<T>
             catch(Exception e)
             {
                 myTrans.Rollback();
+                conn.Close();
                 Console.WriteLine(e.Message);
                 throw(e);
             }
@@ -90,6 +91,7 @@ public class DatabaseReader<T>
         catch(Exception e)
         {
             myTrans.Rollback();
+            conn.Close();
             Console.WriteLine(e.Message);
             throw(e);
         }

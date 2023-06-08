@@ -37,7 +37,5 @@ public class SleepOptimizationManagerController : ControllerBase{
             return Ok();
         
         return BadRequest("User Not Asleep");
-    }
-
-    
+    }    
 }

@@ -14,7 +14,6 @@ public class NestAuthenticator : INestAuthenticator{
         _config = configuration;
     }
 
-   
     public async Task checkAuth(User user){
         var now = DateTime.Now;
         if(user.nestData == null || user.nestData.expires < now){
@@ -52,6 +51,5 @@ public class NestAuthenticator : INestAuthenticator{
         var offset = new TimeSpan(0,0,authresp.expires_in);
         user.nestData.expires = now+offset;
         Console.WriteLine("Got Nest Token");
-
     }
 }
